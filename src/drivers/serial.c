@@ -1,6 +1,5 @@
 #include <kernel/serial.h>
 #include <kernel/panic.h>
-#include <types.h>
 
 #define SERIAL_BASE 0x10000000
 

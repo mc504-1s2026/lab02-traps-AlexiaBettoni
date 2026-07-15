@@ -1,6 +1,5 @@
 #include <kernel/trap.h>
 #include <kernel/panic.h>
-#include <types.h>
 
 /* defined in src/trap_entry.S */
 extern void trap_entry();

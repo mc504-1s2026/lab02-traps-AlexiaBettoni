@@ -71,6 +71,6 @@ trap_entry:
     ld x30, 240(sp)
     ld x31, 248(sp)
     
-    addi sp, sp 256
+    addi sp, sp, 256
 
     sret

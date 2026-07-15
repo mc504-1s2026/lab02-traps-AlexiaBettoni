@@ -5,7 +5,6 @@
 #include <kernel/serial.h>
 #include <arch/plic.h>
 #include <kernel/string.h>
-#include <types.h>
 
 #define CMD_BUFFER_SIZE 128
 static char cmd_buf[CMD_BUFFER_SIZE];

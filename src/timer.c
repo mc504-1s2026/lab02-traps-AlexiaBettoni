@@ -1,6 +1,5 @@
 #include <arch/timer.h>
 #include <kernel/panic.h>
-#include <types.h>
 
 #define TIMER_FREQ 10000000
 #define SIE_STIE (1 << 5)
