@@ -1,15 +1,16 @@
 #include <kernel/trap.h>
 #include <kernel/panic.h>
-
-/* defined in src/trap_entry.S */
-extern void trap_entry();
+#include <kernel/serial.h>
+#include <arch/timer.h>
 
 #define SIE_SEIE (1 << 9)
+
+extern void trap_entry();
 
 void handle_irq()
 {
 	u64 scause;
-	asm volatile("csrr %0, scause" : "=r"(scause));
+	__asm__ __volatile__("csrr %0, scause" : "=r"(scause));
 
 	u64 irq_code = scause & ~(1ULL << 63);
 
@@ -38,8 +39,8 @@ void handle_exception()
 {
 	u64 scause;
 	u64 stval;
-	asm volatile("csrr %0, scause" : "=r"(scause));
-	asm volatile("csrr %0, stval" : "=r"(stval));
+	__asm__ __volatile__("csrr %0, scause" : "=r"(scause));
+	__asm__ __volatile__("csrr %0, stval" : "=r"(stval));
 	if (scause == 12 || scause == 13 || scause == 15)
 	{
 		panic("Page fault: %d", scause);
@@ -50,16 +51,16 @@ void handle_exception()
 void trap_setup()
 {
 	u64 entry = (u64)trap_entry;
-	asm volatile("csrw stvec, %0" ::"r"(entry));
+	__asm__ __volatile__("csrw stvec, %0" ::"r"(entry));
 
 	u64 mask = SIE_SEIE;
-    asm volatile("csrs sie, %0" :: "r"(mask));
+    __asm__ __volatile__("csrs sie, %0" :: "r"(mask));
 }
 
 void handle_trap()
 {
 	u64 scause;
-	asm volatile("csrr %0, scause" : "=r"(scause));
+	__asm__ __volatile__("csrr %0, scause" : "=r"(scause));
 
 	if (scause & (1ULL << 63)) {
 		handle_irq();
@@ -71,25 +72,25 @@ void handle_trap()
 void hart_irq_enable()
 {
 	u64 mask = 1 << 1;
-	asm volatile("csrs sstatus, %0" ::"r"(mask));
+	__asm__ __volatile__("csrs sstatus, %0" ::"r"(mask));
 }
 
 u64 hart_irq_save()
 {
 	u64 sstatus;
 	u64 mask = 1 << 1;
-	asm volatile("csrr %0, sstatus" : "=r"(sstatus));
-	asm volatile("csrc sstatus, %0" ::"r"(mask));
+	__asm__ __volatile__("csrr %0, sstatus" : "=r"(sstatus));
+	__asm__ __volatile__("csrc sstatus, %0" ::"r"(mask));
 	return sstatus;
 }
 
 void hart_irq_restore(u64 flags)
 {
-	asm volatile("csrw sstatus, %0" ::"r"(flags));
+	__asm__ __volatile__("csrw sstatus, %0" ::"r"(flags));
 }
 
 void hart_irq_disable()
 {
 	u64 mask = 1 << 1;
-	asm volatile("csrc sstatus, %0" ::"r"(mask));
+	__asm__ __volatile__("csrc sstatus, %0" ::"r"(mask));
 }

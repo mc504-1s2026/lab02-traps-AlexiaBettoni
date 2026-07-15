@@ -32,10 +32,10 @@ void execute_command(char *line) {
 
     if (strcmp(line, "uptime") == 0) {
         u64 secs = timer_read() / 10000000;
-        printk("%llds\n", secs);
+        info("%llds\n", secs);
     } 
     else if (strncmp(line, "echo ", 5) == 0) {
-        printk("%s\n", line + 5);
+        info("%s\n", line + 5);
     } 
     else if (strncmp(line, "alarm ", 6) == 0) {
         char *arg = line + 6;
@@ -58,16 +58,16 @@ void execute_command(char *line) {
 void kmain()
 {
     printk_set_level(LOG_DEBUG);
-    info("entered S-mode\n");
-    info("booting on hart %d\n", _hartid[0]);
-    info("setting up virtual memory...\n");
+    info("S-mode\n");
+    info("hart %d\n", _hartid[0]);
+    info("arrumando memoria virtual...\n");
     vm_init();
 
-    info("enabling traps...\n");
+    info("traps...\n");
     trap_setup();
-    info("enabling timer...\n");
+    info("timer...\n");
     timer_irq_enable();
-    info("enabling serial...\n");
+    info("serial...\n");
     serial_init();
     serial_irq_enable();
 
@@ -77,7 +77,7 @@ void kmain()
 
     hart_irq_enable();
 
-    info("starting shell...\n");
+    info("shell...\n");
     serial_puts("> ");
 
     while (1) {

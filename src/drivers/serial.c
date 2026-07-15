@@ -1,9 +1,7 @@
 #include <kernel/serial.h>
 #include <kernel/panic.h>
 
-#define SERIAL_BASE 0x10000000
-
-#define UART_REG(reg) ((volatile u8 *)(SERIAL_BASE + (reg)))
+#define UART_REG(reg) ((volatile u8 *)((u64)SERIAL_BASE + (reg)))
 
 #define UART_RBR UART_REG(0) // leitura
 #define UART_THR UART_REG(0) // escrita
@@ -85,6 +83,6 @@ void serial_puts(char *str)
 
 void serial_putc(char c)
 {
-	while (!(*UART_LSR & UART_LSR_TEMT));
+	while (!(*UART_LSR & UART_LSR_TEMT)){}
     *UART_THR = c;
 }
