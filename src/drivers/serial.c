@@ -1,5 +1,6 @@
 #include <kernel/serial.h>
 #include <kernel/panic.h>
+#include <kernel/trap.h>
 #include <arch/spinlock.h>
 
 #define UART_REG(reg) ((volatile u8 *)((u64)SERIAL_BASE + (reg)))
@@ -64,7 +65,8 @@ void serial_irq()
 size_t serial_read(char *buf)
 {
 	size_t count = 0;
-	
+
+	u64 flags = hart_irq_save();
 	spin_lock(&serial_lock);
     while (rx_tail != rx_head) {
         buf[count++] = rx_buffer[rx_tail];
@@ -72,6 +74,7 @@ size_t serial_read(char *buf)
     }
     
 	spin_unlock(&serial_lock);
+	hart_irq_restore(flags);
     return count;
 }
 

@@ -10,13 +10,12 @@
 static char cmd_buf[CMD_BUFFER_SIZE];
 static int cmd_idx = 0;
 
-static volatile u64 alarm_trigger_time = 0;
 static volatile int alarm_pending = 0;
 
 extern int _hartid[];
 
 void handle_alarm_check() {
-    if (alarm_pending && timer_read() >= alarm_trigger_time) {
+    if (alarm_pending && timer_alarm_fired()) {
         serial_puts("\r\nalarm\r\n> ");
         for (int i = 0; i < cmd_idx; i++) {
             serial_putc(cmd_buf[i]);
@@ -46,7 +45,7 @@ void execute_command(char *line) {
         }
         
         if (secs > 0) {
-            alarm_trigger_time = timer_read() + (secs * 10000000);
+            timer_set_alarm(secs);
             alarm_pending = 1;
         }
     } 

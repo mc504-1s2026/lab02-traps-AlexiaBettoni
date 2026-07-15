@@ -1,8 +1,11 @@
 #include <arch/timer.h>
+#include <kernel/trap.h>
 #include <kernel/panic.h>
 
 #define TIMER_FREQ 10000000
 #define SIE_STIE (1 << 5)
+
+static volatile int alarm_fired = 0;
 
 u64 timer_read()
 {
@@ -34,4 +37,15 @@ void timer_irq()
 {
 	u64 disable_val = -1ULL;
     __asm__ __volatile__("csrw stimecmp, %0" :: "r"(disable_val));
+    alarm_fired = 1;
+}
+
+int timer_alarm_fired()
+{
+	int fired;
+	u64 flags = hart_irq_save();
+	fired = alarm_fired;
+	alarm_fired = 0;
+	hart_irq_restore(flags);
+	return fired;
 }
