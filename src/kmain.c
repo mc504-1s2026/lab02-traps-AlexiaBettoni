@@ -51,7 +51,7 @@ void execute_command(char *line) {
         }
     } 
     else {
-        printk("Unknown command: %s\n", line);
+        info("Unknown command: %s\n", line);
     }
 }
 
@@ -71,7 +71,7 @@ void kmain()
     serial_init();
     serial_irq_enable();
 
-    plic_set_priority(10, 1);
+    plic_irq_set_priority(10, 1);
     plic_hart_enable_irq(0, 10);
     plic_hart_set_threshold(0, 0);
 
