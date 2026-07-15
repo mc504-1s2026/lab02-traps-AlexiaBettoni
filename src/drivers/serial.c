@@ -1,5 +1,6 @@
 #include <kernel/serial.h>
 #include <kernel/panic.h>
+#include <arch/spinlock.h>
 
 #define UART_REG(reg) ((volatile u8 *)((u64)SERIAL_BASE + (reg)))
 

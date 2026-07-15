@@ -2,6 +2,7 @@
 #include <kernel/panic.h>
 #include <kernel/serial.h>
 #include <arch/timer.h>
+#include <arch/plic.h>
 
 #define SIE_SEIE (1 << 9)
 
@@ -19,7 +20,7 @@ void handle_irq()
 	case 5:
 		timer_irq();
 		break;
-	case 9:
+	case 9:{
 		u32 irq = plic_hart_claim_irq(0);
 
 		if (irq == 10){ 
@@ -30,6 +31,7 @@ void handle_irq()
 			plic_hart_complete_irq(0, irq);
 		}
 		break;
+	}
 	default:
 		panic("Problema não tratado: %d\n", irq_code);
 	}
@@ -45,7 +47,7 @@ void handle_exception()
 	{
 		panic("Page fault: %d", scause);
 	}
-	panic("Problema não tratado: %d", scause)
+	panic("Problema não tratado: %d", scause);
 }
 
 void trap_setup()
