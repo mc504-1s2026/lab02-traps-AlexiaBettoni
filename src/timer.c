@@ -1,32 +1,51 @@
 #include <arch/timer.h>
+#include <kernel/trap.h>
 #include <kernel/panic.h>
+
+#define TIMER_FREQ 10000000
+#define SIE_STIE (1 << 5)
+
+static volatile int alarm_fired = 0;
 
 u64 timer_read()
 {
-	/* not implemented */
-	BUG();
+	u64 time_val;
+    __asm__ __volatile__("csrr %0, time" : "=r"(time_val));
+    return time_val;
 }
 
 void timer_irq_enable()
 {
-	/* not implemented */
-	BUG();
+	u64 mask = SIE_STIE;
+    __asm__ __volatile__("csrs sie, %0" :: "r"(mask));
 }
 
 void timer_irq_disable()
 {
-	/* not implemented */
-	BUG();
+	u64 mask = SIE_STIE;
+    __asm__ __volatile__("csrc sie, %0" :: "r"(mask));
 }
 
 void timer_set_alarm(u64 secs)
 {
-	/* not implemented */
-	BUG();
+	u64 now = timer_read();
+    u64 alarm_time = now + (secs * TIMER_FREQ);
+    __asm__ __volatile__("csrw stimecmp, %0" :: "r"(alarm_time));
 }
 
 void timer_irq()
 {
-	/* not implemented */
-	BUG();
+	u64 disable_val = -1ULL;
+    __asm__ __volatile__("csrw stimecmp, %0" :: "r"(disable_val));
+    alarm_fired = 1;
+}
+
+int timer_alarm_fired()
+{
+	int fired;
+	u64 flags = hart_irq_save();
+	fired = alarm_fired;
+	alarm_fired = 0;
+	hart_irq_restore(flags);
+	return fired;
 }
